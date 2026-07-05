@@ -1,7 +1,35 @@
+"use client"
+
+import { loginUser } from "@/action/server/auth";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
+import { toast } from "react-toastify";
 
 const LoginPage = () => {
+  const route = useRouter()
+  const handelLogin = async (e) => {
+    e.preventDefault();
+
+    const email = e.target.email.value
+    const password = e.target.password.value
+
+    const result = await signIn("credentials",{
+      email,
+      password,
+      redirect: false
+    })
+
+    if(result.ok){
+      toast.success("Login Successfull")
+      route.push("/")
+    }else{
+      toast.error("Try Again")
+    }
+
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 px-4">
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
@@ -11,7 +39,7 @@ const LoginPage = () => {
             Login to your account
           </p>
 
-          <form className="space-y-4">
+          <form onSubmit={handelLogin} className="space-y-4">
             {/* Email */}
             <div className="form-control">
               <label className="label">

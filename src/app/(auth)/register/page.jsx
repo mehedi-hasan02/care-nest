@@ -1,6 +1,42 @@
+"use client"
+
+import { postUser } from "@/action/server/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const RegisterPage = () => {
+
+  const route = useRouter()
+
+  const handelRegister = async (e)=>{
+    e.preventDefault();
+
+    const nid = e.target.nid.value
+    const name = e.target.name.value
+    const email = e.target.email.value
+    const number = e.target.contact.value
+    const pass = e.target.password.value
+
+    const user = {
+      name,
+      email,
+      number,
+      nid,
+      pass
+    }
+
+    const result = await postUser(user)
+
+    if(result.acknowledged){
+      toast.success("Register Successfull")
+      route.push("/login")
+    }else{
+      toast.error(result.message)
+    }
+  }
+
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-200 px-4 py-10">
       <div className="card w-full max-w-lg bg-base-100 shadow-xl">
@@ -10,14 +46,14 @@ const RegisterPage = () => {
             Register to get started
           </p>
 
-          <form className="space-y-4">
+          <form onSubmit={handelRegister} className="space-y-4">
             {/* NID */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text font-medium">NID No.</span>
               </label>
               <input
-                type="text"
+                type="number"
                 name="nid"
                 placeholder="Enter your NID number"
                 className="input input-bordered w-full"
