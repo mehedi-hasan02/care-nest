@@ -1,12 +1,14 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { SlUser } from "react-icons/sl";
 
 const AuthButton = () => {
   const session = useSession();
+  const image = session?.data?.user?.image;
 
   return (
     <div>
@@ -14,14 +16,11 @@ const AuthButton = () => {
         <div className="dropdown dropdown-end">
           <div tabIndex={0} role="button" className="avatar cursor-pointer">
             <div className="w-10 h-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 bg-base-200 flex items-center justify-center cursor-pointer hover:bg-base-300 transition-colors">
-              {/* <Image
-                src="/file.svg"
-                alt="Avatar"
-                width={40}
-                height={40}
-                className="w-full h-full object-cover"
-              /> */}
-              <SlUser className="text-lg text-base-content" />
+              {image ? (
+                <Image src={image} alt="user" width={40} height={40} />
+              ) : (
+                <SlUser className="text-lg text-base-content" />
+              )}
             </div>
           </div>
 

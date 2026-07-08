@@ -1,7 +1,9 @@
 "use client";
 
 import { postBooking } from "@/action/server/booking";
-import { useParams, useRouter } from "next/navigation";
+import { createCheckoutSession } from "@/action/server/payment";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import {
   FaClock,
@@ -9,6 +11,7 @@ import {
   FaMoneyBillWave,
   FaCheckCircle,
 } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const divisions = [
   "Dhaka",
@@ -38,8 +41,12 @@ const PRICE_PER_DAY = 900;
 export default function BookingPage() {
   const { id } = useParams();
   const router = useRouter();
+  const session = useSession();
 
-//   console.log(id)
+  const path = usePathname()
+  console.log(path)
+
+  //   console.log(id)
 
   const [durationType, setDurationType] = useState("hour");
   const [durationValue, setDurationValue] = useState(1);
@@ -62,19 +69,23 @@ export default function BookingPage() {
     e.preventDefault();
     setLoading(true);
 
-    const payload = {
-      serviceId: id,
-      durationType,
-      durationValue,
-      location: { division, district, city, area, address },
-      totalCost,
-      status: "Pending",
-    };
-    console.log("Booking payload:", payload);
-
-    const result = await postBooking(payload)
-
-    setLoading(false);
+    try {
+      const { url } = await createCheckoutSession({
+        serviceId: id,
+        serviceTitle: "Care Service", // replace with actual fetched service title
+        durationType,
+        durationValue,
+        totalCost,
+        location: { division, district, city, area, address },
+        userEmail: session?.user?.email,
+      });
+      window.location.href = url;
+      toast.success("Booking Successfull");
+    } catch (err) {
+      console.error(err);
+      //   setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   };
 
   return (

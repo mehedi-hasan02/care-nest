@@ -1,33 +1,36 @@
-"use client"
+"use client";
 
-import { loginUser } from "@/action/server/auth";
+import SocialButton from "@/app/components/buttons/SocialButton";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FcGoogle } from "react-icons/fc";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 
 const LoginPage = () => {
-  const route = useRouter()
+  const route = useRouter();
+  const params = useSearchParams();
+  const callBack = params.get("callbackUrl") || "/";
+
+
   const handelLogin = async (e) => {
     e.preventDefault();
 
-    const email = e.target.email.value
-    const password = e.target.password.value
+    const email = e.target.email.value;
+    const password = e.target.password.value;
 
-    const result = await signIn("credentials",{
+    const result = await signIn("credentials", {
       email,
       password,
-      redirect: false
-    })
+      redirect: false,
+      callbackUrl: callBack,
+    });
 
-    if(result.ok){
-      toast.success("Login Successfull")
-      route.push("/")
-    }else{
-      toast.error("Try Again")
+    if (result.ok) {
+      toast.success("Login Successfull");
+      route.push(callBack);
+    } else {
+      toast.error("Try Again");
     }
-
   };
 
   return (
@@ -84,10 +87,7 @@ const LoginPage = () => {
 
           <div className="divider">OR</div>
 
-          <button className="btn btn-outline w-full">
-            <FcGoogle className="text-2xl" />
-            Continue with Google
-          </button>
+          <SocialButton />
 
           <p className="text-center mt-4">
             Don't have an account?{" "}

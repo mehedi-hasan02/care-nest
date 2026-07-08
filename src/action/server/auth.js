@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { collections, dbConnect } from "@/lib/dbConnect";
 import bcrypt from "bcryptjs";
@@ -24,9 +24,10 @@ export const postUser = async (payload) => {
     number,
     nid,
     register: new Date().toISOString(),
+    role: "user"
   };
 
-  console.log(newUser)
+  // console.log(newUser);
 
   const result = await dbConnect(collections.USERS).insertOne(newUser);
 
@@ -41,7 +42,7 @@ export const postUser = async (payload) => {
 export const loginUser = async (payload) => {
   const { email, password } = payload;
 
-  console.log({email, password})
+  // console.log({ email, password });
 
   if (!email || !password) {
     return null;

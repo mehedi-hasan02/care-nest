@@ -9,7 +9,7 @@ export const authOptions = {
       name: "Credentials",
       credentials: {},
       async authorize(credentials, req) {
-        console.log(credentials)
+        console.log(credentials);
         const user = await loginUser({
           email: credentials.email,
           password: credentials.password,
@@ -22,29 +22,41 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
-  // callbacks: {
-  //   async signIn({ user, account, profile, email, credentials }) {
-  //     // console.log(user)
-  //     const isExist = await dbConnect(collections.USERS).findOne({
-  //       email: user?.email
-  //     })
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      const isExist = await dbConnect(collections.USERS).findOne({
+        email: user?.email,
+      });
 
-  //     // console.log("isExist")
+      if (isExist) {
+        return true;
+      }
 
-  //     if(isExist){
-  //       return true
-  //     }
+      const newUser = {
+        providers: account?.providers,
+        email: user?.email,
+        password: user?.password,
+        image: user?.image,
+        role: "user",
+      };
 
-  //     return false;
-  //   },
-  //   async redirect({ url, baseUrl }) {
-  //     return baseUrl;
-  //   },
-  //   async session({ session, token, user }) {
-  //     return session;
-  //   },
-  //   async jwt({ token, user, account, profile, isNewUser }) {
-  //     return token;
-  //   },
-  // },
+      const result = await dbConnect(collections.USERS).insertOne(newUser);
+
+      return result.acknowledged;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.role = token.role,
+        session.email = token.email
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user){
+        token.role = user?.role,
+        token.email = user?.email
+      }
+      return token;
+    },
+  },
 };
